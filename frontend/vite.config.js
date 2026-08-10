@@ -8,4 +8,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+
+  preview: {
+    allowedHosts: ['cs-render-frontend.onrender.com']
+  }
+  
 })

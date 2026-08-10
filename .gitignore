@@ -8,3 +8,8 @@ build/
 
 uploads/
 server/uploads/
+
+*.sql
+.ssh
+node_modules/
+.env
