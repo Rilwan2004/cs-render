@@ -22,6 +22,13 @@ app.use("/interests", interestRouter);
 app.use("/roommates", roommateRouter);
 app.use("/upload", uploadRouter);
 
+app.get("/", (req, res) => {
+    res.json({
+        message: "CorperNest API is running",
+        status: "OK"
+    });
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
