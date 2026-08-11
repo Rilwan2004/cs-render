@@ -3,14 +3,14 @@
   padding:64px 0 80px;
   background:
     linear-gradient(180deg, rgba(18,23,43,0.85), rgba(18,23,43,0.8)),
-    url('../assets/hero.jpg') center/cover no-repeat;
+    url('../assets/hero.png') center/cover no-repeat;
 }
 @media (min-width:960px){
   .hero{
     padding:120px 0;
     background:
       linear-gradient(110deg, rgba(18,23,43,0.93) 20%, rgba(18,23,43,0.55) 55%, rgba(18,23,43,0.18) 100%),
-      url('https://images.unsplash.com/photo-1586228046763-cd367fc926bf?fm=jpg&q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;
+      url('../assets/hero.png') center/cover no-repeat;
   }
 }
 .hero-inner{
