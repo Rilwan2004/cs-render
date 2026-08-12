@@ -98,7 +98,10 @@ const Applications = () => {
                                     <div className="request-name">{app.corps_member_name}</div>
                                     <div className="request-meta">Applied for room in {app.location}</div>
                                     {app.status === "accepted" && (
-                                        <div className="request-contact">{app.corps_member_contact}</div>
+                                        <div className="request-contact">
+                                            {app.corps_member_contact}
+                                            {app.corps_member_phone ? ` · ${app.corps_member_phone}` : ""}
+                                        </div>
                                     )}
                                 </div>
                                 {app.status === "pending" ? (

@@ -13,6 +13,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const PostListing = () => {
     const navigate = useNavigate();
     const uploadRef = useRef(null);
+    const formCardRef = useRef(null);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
@@ -44,6 +45,9 @@ const PostListing = () => {
         setError("");
         setSuccess("");
         setSubmitting(true);
+        // Scroll to the top of the form right away so the person immediately
+        // sees the success/error message land once the request resolves.
+        formCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         const token = localStorage.getItem("token");
         try {
             const images = await uploadRef.current.resolveUrls(token);
@@ -73,7 +77,7 @@ const PostListing = () => {
         <div className="themed">
             <Navbar active="post" />
             <div className="section-inner" style={{ padding: "20px 20px 60px" }}>
-                <div className="form-card">
+                <div className="form-card" ref={formCardRef}>
                     <h1 style={{ fontSize: 24, marginBottom: 6 }}>Post a listing</h1>
                     <p style={{ color: "var(--slate-500)", fontSize: 14, marginBottom: 24 }}>
                         Whether you're an agent or a corper with a spare room, this goes live in
@@ -106,12 +110,12 @@ const PostListing = () => {
 
                         <div className="form-row">
                             <div className="form-field">
-                                <label htmlFor="price">Price (&#8358;/month)</label>
+                                <label htmlFor="price">Price (&#8358;) &middot; Annual (per year)</label>
                                 <input
                                     type="number"
                                     id="price"
                                     name="price"
-                                    placeholder="90000"
+                                    placeholder="900000"
                                     value={values.price}
                                     onChange={handleChange}
                                     required

@@ -4,7 +4,7 @@ import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import MediaSlider from "../components/MediaSlider";
-import { CheckIcon, HeartIcon, PinIcon, ArrowLeftIcon, LockIcon } from "../components/Icons";
+import { CheckIcon, HeartIcon, PinIcon, ArrowLeftIcon, LockIcon, MailIcon, PhoneIcon } from "../components/Icons";
 import { normalizeAgentListing, normalizeCorperListing } from "../utils/listings";
 import "../styles/theme.css";
 import "../styles/listings.css";
@@ -59,7 +59,7 @@ const ListingDetail = () => {
                     const existing = interestsRes.data.interests.find((i) => String(i.listing_id) === id);
                     if (existing) {
                         setStatus(existing.status);
-                        setContact(existing.agent_contact);
+                        setContact({ email: existing.agent_contact, phone: existing.agent_phone });
                     }
                 } else {
                     const [roommatesRes, requestsRes] = await Promise.all([
@@ -75,7 +75,7 @@ const ListingDetail = () => {
                     const existing = requestsRes.data.requests.find((r) => String(r.requested_id) === id);
                     if (existing) {
                         setStatus(existing.status);
-                        setContact(existing.contact);
+                        setContact({ email: existing.contact, phone: existing.contact_phone });
                     }
                 }
             } catch (err) {
@@ -177,7 +177,7 @@ const ListingDetail = () => {
 
                     <div className="detail-sidebar">
                         <div className="price mono">
-                            &#8358;{formatPrice(listing.price)} <span className="unit">/month</span>
+                            &#8358;{formatPrice(listing.price)} <span className="unit">/year (annual)</span>
                         </div>
 
                         <div className="poster-row">
@@ -203,7 +203,21 @@ const ListingDetail = () => {
                         <div className="contact-card">
                             <h4>Contact details</h4>
                             {status === "accepted" ? (
-                                <div className="contact-unblurred">{contact}</div>
+                                <div className="contact-unblurred">
+                                    {contact?.email && (
+                                        <div className="contact-unblurred-row">
+                                            <MailIcon /> {contact.email}
+                                        </div>
+                                    )}
+                                    {contact?.phone && (
+                                        <div className="contact-unblurred-row">
+                                            <PhoneIcon /> {contact.phone}
+                                        </div>
+                                    )}
+                                    {!contact?.email && !contact?.phone && (
+                                        <div className="contact-unblurred-row">Contact details unavailable.</div>
+                                    )}
+                                </div>
                             ) : (
                                 <div className="contact-blur-wrap">
                                     <div className="contact-blur-value">{listing.posterName}@example.com</div>

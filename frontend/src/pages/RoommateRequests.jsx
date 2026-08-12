@@ -101,7 +101,10 @@ const RoommateRequests = () => {
                                     <div className="request-name">{req.username}</div>
                                     <div className="request-meta">Wants to room with you</div>
                                     {req.status === "accepted" && (
-                                        <div className="request-contact">{req.contact}</div>
+                                        <div className="request-contact">
+                                            {req.contact}
+                                            {req.contact_phone ? ` · ${req.contact_phone}` : ""}
+                                        </div>
                                     )}
                                 </div>
                                 {req.status === "pending" ? (

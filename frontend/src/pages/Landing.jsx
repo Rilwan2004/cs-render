@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { CheckIcon } from "../components/Icons";
@@ -24,11 +25,24 @@ const STEPS = [
 ];
 
 const Landing = () => {
+    const navigate = useNavigate();
     const isLoggedIn = !!localStorage.getItem("token");
+
+    // Logged-in users have no reason to see the marketing landing page,
+    // send them straight to their dashboard instead.
+    useEffect(() => {
+        if (isLoggedIn) {
+            navigate("/dashboard", { replace: true });
+        }
+    }, [isLoggedIn, navigate]);
+
+    if (isLoggedIn) {
+        return null;
+    }
 
     return (
         <div className="themed">
-            <Navbar />
+            <Navbar variant="landing" />
 
             <section className="hero">
                 <div className="hero-inner">
@@ -42,18 +56,12 @@ const Landing = () => {
                             splitting rent near you, then meet with confidence.
                         </p>
                         <div className="hero-actions">
-                            <a href="#how-it-works" className="btn btn-secondary">
+                            <Link to="/register" className="btn btn-primary btn-lg">
+                                Get started
+                            </Link>
+                            <a href="#how-it-works" className="btn btn-secondary btn-lg">
                                 How it works
                             </a>
-                            {isLoggedIn ? (
-                                <Link to="/dashboard" className="btn btn-primary">
-                                    Go to Dashboard
-                                </Link>
-                            ) : (
-                                <Link to="/login" className="btn btn-primary">
-                                    Login
-                                </Link>
-                            )}
                         </div>
                         <div className="trust-micro">
                             <CheckIcon width="16" height="16" />
@@ -63,7 +71,7 @@ const Landing = () => {
 
                     <div className="hero-visual">
                         <div className="match-seal">
-                            <div className="seal-card seal-card-left">
+                            <div className="seal-card seal-card-left glass">
                                 <div className="seal-avatar"></div>
                                 <div className="seal-line"></div>
                                 <div className="seal-line short"></div>
@@ -71,7 +79,7 @@ const Landing = () => {
                                     <CheckIcon width="10" height="10" />
                                 </div>
                             </div>
-                            <div className="seal-card seal-card-right">
+                            <div className="seal-card seal-card-right glass">
                                 <div className="seal-avatar"></div>
                                 <div className="seal-line"></div>
                                 <div className="seal-line short"></div>
@@ -90,7 +98,7 @@ const Landing = () => {
                     <h2>Three steps to a verified match</h2>
                     <div className="steps-grid">
                         {STEPS.map((step) => (
-                            <div className="step-card" key={step.num}>
+                            <div className="step-card glass-light" key={step.num}>
                                 <span className="step-num">{step.num}</span>
                                 <h3>{step.title}</h3>
                                 <p>{step.body}</p>

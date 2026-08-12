@@ -1,144 +1,167 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { HomeIcon, UserIcon, DocIcon, CheckIcon } from "../components/Icons";
+import ListingCard from "../components/ListingCard";
+import { normalizeAgentListing, normalizeCorperListing } from "../utils/listings";
 import "../styles/theme.css";
-import "../styles/dashboard.css";
+import "../styles/listings.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-const Dashboard = () => {
-  const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+const SORTS = [
+    { key: "newest", label: "Newest" },
+    { key: "price-low", label: "Price: low to high" },
+    { key: "price-high", label: "Price: high to low" },
+];
 
-  const fetchUser = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/");
-      return;
-    }
-    try {
-      const response = await axios.get(`${API_URL}/auth/home`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setUser(response.data.user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      localStorage.removeItem("token");
-      navigate("/");
-    } finally {
-      setLoading(false);
-    }
-  };
+const Listings = () => {
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [listings, setListings] = useState([]);
 
-  useEffect(() => {
-    fetchUser();
-  }, []);
+    const [sourceFilter, setSourceFilter] = useState("all"); // all | agent | corper
+    const [sort, setSort] = useState("newest");
+    const [search, setSearch] = useState("");
 
-  if (loading) {
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            navigate("/login");
+            return;
+        }
+
+        const headers = { Authorization: `Bearer ${token}` };
+
+        Promise.all([
+            axios.get(`${API_URL}/listings`, { headers }),
+            axios.get(`${API_URL}/roommates`, { headers }),
+        ])
+            .then(([listingsRes, roommatesRes]) => {
+                const agentListings = listingsRes.data.listings.map(normalizeAgentListing);
+                const corperListings = roommatesRes.data.profiles
+                    .filter((p) => p.has_apartment)
+                    .map(normalizeCorperListing);
+                setListings([...agentListings, ...corperListings]);
+            })
+            .catch((err) => {
+                console.error("Error fetching listings:", err);
+                setError("Couldn't load listings right now. Please try again.");
+            })
+            .finally(() => setLoading(false));
+    }, []);
+
+    const visibleListings = useMemo(() => {
+        let result = listings;
+
+        if (sourceFilter !== "all") {
+            result = result.filter((l) => l.source === sourceFilter);
+        }
+
+        if (search.trim()) {
+            const q = search.trim().toLowerCase();
+            result = result.filter(
+                (l) =>
+                    l.location?.toLowerCase().includes(q) ||
+                    l.title?.toLowerCase().includes(q)
+            );
+        }
+
+        result = [...result].sort((a, b) => {
+            if (sort === "price-low") return Number(a.price) - Number(b.price);
+            if (sort === "price-high") return Number(b.price) - Number(a.price);
+            return 0; // "newest": keep API order (agent listings already sorted desc by created_at)
+        });
+
+        return result;
+    }, [listings, sourceFilter, sort, search]);
+
     return (
-      <div className="themed">
-        <Navbar />
-        <p style={{ padding: "60px 40px", color: "var(--slate-500)" }}>Loading...</p>
-      </div>
+        <div className="themed">
+            <Navbar active="browse" />
+
+            <div className="section-inner listings-header">
+                <h1>Browse listings</h1>
+                <p className="subtitle">Agent rooms and corpers with a spare space, all in one place.</p>
+            </div>
+
+            <div className="section-inner">
+                <div className="filter-bar">
+                    <input
+                        type="text"
+                        className="filter-select"
+                        style={{ flex: "1 1 220px", cursor: "text" }}
+                        placeholder="Search by location..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+
+                    <div className="filter-pill-group">
+                        <button
+                            className={sourceFilter === "all" ? "active" : ""}
+                            onClick={() => setSourceFilter("all")}
+                        >
+                            All
+                        </button>
+                        <button
+                            className={sourceFilter === "agent" ? "active" : ""}
+                            onClick={() => setSourceFilter("agent")}
+                        >
+                            Agent
+                        </button>
+                        <button
+                            className={sourceFilter === "corper" ? "active" : ""}
+                            onClick={() => setSourceFilter("corper")}
+                        >
+                            Corper
+                        </button>
+                    </div>
+
+                    <select
+                        className="filter-select"
+                        value={sort}
+                        onChange={(e) => setSort(e.target.value)}
+                    >
+                        {SORTS.map((s) => (
+                            <option key={s.key} value={s.key}>
+                                {s.label}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {!loading && !error && (
+                    <div className="listings-meta">
+                        <span className="count">
+                            {visibleListings.length} <span>listing{visibleListings.length === 1 ? "" : "s"}</span>
+                        </span>
+                    </div>
+                )}
+
+                {loading && <p style={{ color: "var(--slate-500)", padding: "40px 0" }}>Loading...</p>}
+                {error && <p className="form-error" style={{ maxWidth: 400 }}>{error}</p>}
+
+                {!loading && !error && visibleListings.length === 0 && (
+                    <div className="listings-empty">
+                        <h3>No listings match your filters</h3>
+                        <p>Try a different search term or clear the filters.</p>
+                    </div>
+                )}
+
+                {!loading && !error && visibleListings.length > 0 && (
+                    <div className="listings-grid">
+                        {visibleListings.map((listing, i) => (
+                            <ListingCard key={`${listing.source}-${listing.id}`} listing={listing} index={i} />
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            <Footer />
+        </div>
     );
-  }
-
-  const isAgent = user?.role === "agent";
-  const profileIncomplete = !user?.preferred_location && !user?.gender;
-
-  return (
-    <div className="themed">
-      <Navbar />
-      <div className="section-inner dash-wrap">
-        <div className="dash-hero">
-          <span className="eyebrow">Dashboard</span>
-          <h1>Welcome back, {user?.username}.</h1>
-          <p>
-            {isAgent
-              ? "Post your available rooms and keep track of what you've listed."
-              : "Ready to find a roommate or fill a spare room? Browse verified corpers in Lagos or post your own place in a couple of minutes."}
-          </p>
-          <div className="dash-hero-actions">
-            <Link to="/listings/new" className="btn btn-primary">
-              Post a listing
-            </Link>
-            {isAgent ? (
-              <Link to="/listings/mine" className="btn btn-secondary">
-                My listings
-              </Link>
-            ) : (
-              <Link to="/listings" className="btn btn-secondary">
-                Look for houses
-              </Link>
-            )}
-          </div>
-        </div>
-
-        <div className="dash-quicklinks">
-          {isAgent ? (
-            <>
-              <Link to="/listings/mine" className="dash-quicklink">
-                <div className="icon-wrap">
-                  <DocIcon width="20" height="20" />
-                </div>
-                <h3>My listings</h3>
-                <p>See everything you've posted so far.</p>
-              </Link>
-              <Link to="/applications" className="dash-quicklink">
-                <div className="icon-wrap">
-                  <CheckIcon width="20" height="20" />
-                </div>
-                <h3>Applications</h3>
-                <p>See who's applied and respond.</p>
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link to="/profile" className="dash-quicklink">
-                <div className="icon-wrap">
-                  <UserIcon width="20" height="20" />
-                </div>
-                <h3>{profileIncomplete ? "Complete your profile" : "Your profile"}</h3>
-                <p>
-                  {profileIncomplete
-                    ? "Add your budget and location so others can find you."
-                    : "Update your gender, budget, and bio anytime."}
-                </p>
-              </Link>
-              <Link to="/listings" className="dash-quicklink">
-                <div className="icon-wrap">
-                  <HomeIcon width="20" height="20" />
-                </div>
-                <h3>Browse listings</h3>
-                <p>See agent rooms and corpers with a spare space.</p>
-              </Link>
-              <Link to="/listings/mine" className="dash-quicklink">
-                <div className="icon-wrap">
-                  <DocIcon width="20" height="20" />
-                </div>
-                <h3>My listings</h3>
-                <p>See what you've posted so far.</p>
-              </Link>
-              <Link to="/requests" className="dash-quicklink">
-                <div className="icon-wrap">
-                  <CheckIcon width="20" height="20" />
-                </div>
-                <h3>Roommate requests</h3>
-                <p>See who wants to room with you and respond.</p>
-              </Link>
-            </>
-          )}
-        </div>
-      </div>
-      <Footer />
-    </div>
-  );
 };
 
-export default Dashboard;
+export default Listings;

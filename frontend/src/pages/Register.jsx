@@ -10,6 +10,7 @@ const Register = () => {
     const [values, setValues] = React.useState({
         username: "",
         email: "",
+        phone: "",
         password: "",
         role: "corps_member"
     });
@@ -92,6 +93,17 @@ const Register = () => {
                                 id="email"
                                 name="email"
                                 placeholder="you@example.com"
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <div className="form-field">
+                            <label htmlFor="phone">Phone number</label>
+                            <input
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                placeholder="080X XXX XXXX"
                                 onChange={handleChange}
                                 required
                             />

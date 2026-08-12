@@ -12,6 +12,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const ProfileSetup = () => {
     const uploadRef = useRef(null);
     const [values, setValues] = useState({
+        phone: "",
         gender: "",
         preferred_location: "",
         budget_min: "",
@@ -50,6 +51,7 @@ const ProfileSetup = () => {
                     return;
                 }
                 setValues({
+                    phone: user.phone || "",
                     gender: user.gender || "",
                     preferred_location: user.preferred_location || "",
                     budget_min: user.budget_min ?? "",
@@ -91,6 +93,7 @@ const ProfileSetup = () => {
         // Only send apartment fields if has_apartment is checked, so we don't
         // overwrite saved apartment info with blanks by accident.
         const payload = {
+            phone: values.phone || null,
             gender: values.gender || null,
             preferred_location: values.preferred_location || null,
             budget_min: values.budget_min === "" ? null : Number(values.budget_min),
@@ -144,6 +147,18 @@ const ProfileSetup = () => {
                     {success && <p className="form-success" style={{ marginBottom: 16 }}>{success}</p>}
 
                     <form onSubmit={handleSubmit}>
+                        <div className="form-field">
+                            <label htmlFor="phone">Phone number</label>
+                            <input
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                placeholder="080X XXX XXXX"
+                                value={values.phone}
+                                onChange={handleChange}
+                            />
+                        </div>
+
                         <div className="form-field">
                             <label htmlFor="gender">Gender</label>
                             <select
@@ -252,7 +267,7 @@ const ProfileSetup = () => {
                                 </div>
                                 <div className="form-row">
                                     <div className="form-field">
-                                        <label htmlFor="apartment_price">Price (&#8358;/month)</label>
+                                        <label htmlFor="apartment_price">Price (&#8358;) &middot; Annual (per year)</label>
                                         <input
                                             type="number"
                                             id="apartment_price"
