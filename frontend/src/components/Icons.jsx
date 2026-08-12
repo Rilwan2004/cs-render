@@ -58,3 +58,16 @@ export const LockIcon = (props) => (
     <path d="M8 11V7a4 4 0 018 0v4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
   </svg>
 );
+
+export const PhoneIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path d="M6.5 3h3l1.5 4.5-2.2 1.6a12 12 0 006.1 6.1l1.6-2.2L21 14.5v3a2 2 0 01-2.2 2C10.9 18.9 5.1 13.1 4.5 6.2 4.4 4.9 5.2 3.7 6.5 3z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+  </svg>
+);
+
+export const MailIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.6" />
+    <path d="M4 6.5l8 6 8-6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);

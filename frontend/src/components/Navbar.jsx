@@ -4,7 +4,7 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-const Navbar = ({ active }) => {
+const Navbar = ({ active, variant }) => {
     const navigate = useNavigate();
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
@@ -35,8 +35,14 @@ const Navbar = ({ active }) => {
         navigate("/login");
     };
 
+    // The landing page is only ever shown to logged-out visitors, so it gets a
+    // stripped-down nav: just "How it works" plus login / sign up.
+    const isLanding = variant === "landing";
+
     // Agents can only post and view their own listings, not browse or roommate-match
-    const links = role === "agent"
+    const links = isLanding
+        ? [{ to: "#how-it-works", label: "How it works", key: "how", anchor: true }]
+        : role === "agent"
         ? [
             { to: "/listings/new", label: "Post a listing", key: "post" },
             { to: "/listings/mine", label: "My listings", key: "mine" },
@@ -54,52 +60,86 @@ const Navbar = ({ active }) => {
         <>
             <nav className={`nav${scrolled ? " scrolled" : ""}`}>
                 <div className="nav-bottom">
-                    <div className="section-inner">
-                        <Link to="/" className="logo">
-                            Corpspace<span className="dot">.</span>
-                        </Link>
-                        <div className="nav-links">
-                            {links.map((link) => (
-                                <Link
-                                    key={link.key}
-                                    to={link.to}
-                                    className={active === link.key ? "active" : ""}
-                                >
-                                    {link.label}
+                    <div className={`section-inner${isLanding ? " nav-grid" : ""}`}>
+                        {isLanding ? (
+                            <>
+                                <div className="nav-links nav-links-left">
+                                    {links.map((link) => (
+                                        <a key={link.key} href={link.to}>
+                                            {link.label}
+                                        </a>
+                                    ))}
+                                </div>
+                                <Link to="/" className="logo nav-logo-center">
+                                    Corpspace<span className="dot">.</span>
                                 </Link>
-                            ))}
-                        </div>
-                        <div className="nav-actions">
-                            {isLoggedIn ? (
-                                <>
-                                    <Link to="/dashboard" className="nav-avatar" title={username}>
-                                        {username?.charAt(0).toUpperCase() || "?"}
-                                    </Link>
-                                    <Link to="/dashboard" className="btn btn-secondary btn-sm">
-                                        Dashboard
-                                    </Link>
-                                    <button onClick={handleLogout} className="btn btn-secondary btn-sm">
-                                        Log out
+                                <div className="nav-grid-right">
+                                    <div className="nav-actions">
+                                        <Link to="/login" className="btn btn-secondary btn-sm">
+                                            Login
+                                        </Link>
+                                        <Link to="/register" className="btn btn-primary btn-sm">
+                                            Get started
+                                        </Link>
+                                    </div>
+                                    <button
+                                        className="hamburger"
+                                        onClick={() => setMenuOpen(true)}
+                                        aria-label="Open menu"
+                                    >
+                                        <span></span><span></span><span></span>
                                     </button>
-                                </>
-                            ) : (
-                                <>
-                                    <Link to="/login" className="btn btn-secondary btn-sm">
-                                        Login
-                                    </Link>
-                                    <Link to="/register" className="btn btn-primary btn-sm">
-                                        Get started
-                                    </Link>
-                                </>
-                            )}
-                        </div>
-                        <button
-                            className="hamburger"
-                            onClick={() => setMenuOpen(true)}
-                            aria-label="Open menu"
-                        >
-                            <span></span><span></span><span></span>
-                        </button>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <Link to="/" className="logo">
+                                    Corpspace<span className="dot">.</span>
+                                </Link>
+                                <div className="nav-links">
+                                    {links.map((link) => (
+                                        <Link
+                                            key={link.key}
+                                            to={link.to}
+                                            className={active === link.key ? "active" : ""}
+                                        >
+                                            {link.label}
+                                        </Link>
+                                    ))}
+                                </div>
+                                <div className="nav-actions">
+                                    {isLoggedIn ? (
+                                        <>
+                                            <Link to="/dashboard" className="nav-avatar" title={username}>
+                                                {username?.charAt(0).toUpperCase() || "?"}
+                                            </Link>
+                                            <Link to="/dashboard" className="btn btn-secondary btn-sm">
+                                                Dashboard
+                                            </Link>
+                                            <button onClick={handleLogout} className="btn btn-secondary btn-sm">
+                                                Log out
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Link to="/login" className="btn btn-secondary btn-sm">
+                                                Login
+                                            </Link>
+                                            <Link to="/register" className="btn btn-primary btn-sm">
+                                                Get started
+                                            </Link>
+                                        </>
+                                    )}
+                                </div>
+                                <button
+                                    className="hamburger"
+                                    onClick={() => setMenuOpen(true)}
+                                    aria-label="Open menu"
+                                >
+                                    <span></span><span></span><span></span>
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
             </nav>
@@ -113,12 +153,18 @@ const Navbar = ({ active }) => {
                         &times;
                     </button>
                 </div>
-                {links.map((link) => (
-                    <Link key={link.key} to={link.to} onClick={() => setMenuOpen(false)}>
-                        {link.label}
-                    </Link>
-                ))}
-                {isLoggedIn ? (
+                {links.map((link) =>
+                    link.anchor ? (
+                        <a key={link.key} href={link.to} onClick={() => setMenuOpen(false)}>
+                            {link.label}
+                        </a>
+                    ) : (
+                        <Link key={link.key} to={link.to} onClick={() => setMenuOpen(false)}>
+                            {link.label}
+                        </Link>
+                    )
+                )}
+                {!isLanding && isLoggedIn ? (
                     <>
                         <Link to="/dashboard" onClick={() => setMenuOpen(false)}>Dashboard</Link>
                         <a onClick={() => { setMenuOpen(false); handleLogout(); }}>Log out</a>

@@ -29,7 +29,7 @@ const ListingCard = ({ listing, index }) => {
             </div>
             <div className="listing-card-body">
                 <div className="listing-price mono">
-                    &#8358;{formatPrice(listing.price)} <span className="unit">/month</span>
+                    &#8358;{formatPrice(listing.price)} <span className="unit">/year (annual)</span>
                 </div>
                 <div className="listing-title">{listing.title}</div>
                 <div className="listing-location">
