@@ -49,7 +49,7 @@ const Landing = () => {
                     <div className="hero-copy reveal in-view">
                         <span className="eyebrow">Built for NYSC corpers in Lagos</span>
                         <h1>
-                            The safest way to <span className="gradient-text">match</span> with a Lagos roommate.
+                            The safest way to <span className="gradient-text">match</span> with a roommate.
                         </h1>
                         <p className="body-lg">
                             Skip the WhatsApp groups and shady agents. Search verified corpers
@@ -63,10 +63,10 @@ const Landing = () => {
                                 How it works
                             </a>
                         </div>
-                        <div className="trust-micro">
+                        {/* <div className="trust-micro">
                             <CheckIcon width="16" height="16" />
                             Verified corpers only, no agents pretending to be roommates
-                        </div>
+                        </div> */}
                     </div>
 
                     <div className="hero-visual">

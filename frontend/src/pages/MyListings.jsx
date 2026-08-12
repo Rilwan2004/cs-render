@@ -34,7 +34,7 @@ const MyListings = () => {
 
     return (
         <div className="themed">
-            <Navbar active="post" />
+            <Navbar active="mine" />
             <div className="section-inner listings-header">
                 <h1>My listings</h1>
                 <p className="subtitle">Everything you've posted, agent or corper.</p>

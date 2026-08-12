@@ -44,13 +44,13 @@ const Navbar = ({ active, variant }) => {
         ? [{ to: "#how-it-works", label: "How it works", key: "how", anchor: true }]
         : role === "agent"
         ? [
-            { to: "/listings/new", label: "Post a listing", key: "post" },
+            { to: "/listings/new", label: "Post", key: "post" },
             { to: "/listings/mine", label: "My listings", key: "mine" },
             { to: "/applications", label: "Applications", key: "applications" },
           ]
         : [
-            { to: "/listings", label: "Browse listings", key: "browse" },
-            { to: "/listings/new", label: "Post a listing", key: "post" },
+            { to: "/listings", label: "Browse", key: "browse" },
+            { to: "/listings/new", label: "Post", key: "post" },
             ...(isLoggedIn ? [{ to: "/listings/mine", label: "My listings", key: "mine" }] : []),
             ...(isLoggedIn ? [{ to: "/requests", label: "Requests", key: "requests" }] : []),
             { to: "/safety", label: "Safety", key: "safety" },
