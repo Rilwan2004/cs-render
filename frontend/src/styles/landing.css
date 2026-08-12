@@ -27,7 +27,8 @@
 .hero-copy .body-lg{font-size:18px; line-height:1.6; color:var(--dusk-text); max-width:480px;}
 @media (min-width:960px){.hero-copy .body-lg{font-size:20px;}}
 .hero-actions{display:flex; flex-wrap:wrap; gap:12px; margin-top:8px;}
-.hero .btn-secondary{color:#fff; border-color:rgba(255,255,255,0.5);}
+.btn-lg{padding:16px 32px; font-size:16px;}
+.hero .btn-secondary{color:#fff; border-color:rgba(255,255,255,0.4); background:rgba(255,255,255,0.1);}
 .hero .btn-secondary:hover{background:#fff; color:var(--ink-900);}
 .trust-micro{
   display:flex; align-items:center; gap:8px;
@@ -41,9 +42,7 @@
 .seal-card{
   position:absolute;
   width:180px; height:120px;
-  background:var(--paper-raised);
   border-radius:var(--r-lg);
-  box-shadow:var(--shadow-rest);
   padding:16px;
   display:flex; flex-direction:column; gap:10px;
 }
@@ -88,6 +87,8 @@
 }
 .step-card{
   display:flex; flex-direction:column; gap:12px;
+  padding:24px;
+  border-radius:var(--r-lg);
 }
 .step-num{
   font-family:'Aleo',serif;
