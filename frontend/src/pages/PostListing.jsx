@@ -4,6 +4,7 @@ import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import FileUploadField from "../components/FileUploadField";
+import { LAGOS_AREAS } from "../utils/lagosAreas";
 import "../styles/theme.css";
 import "../styles/listings.css";
 import "../styles/detail.css";
@@ -97,15 +98,22 @@ const PostListing = () => {
                     <form onSubmit={handleSubmit}>
                         <div className="form-field">
                             <label htmlFor="location">Location</label>
-                            <input
-                                type="text"
+                            <select
                                 id="location"
                                 name="location"
-                                placeholder="e.g. Yaba, Lagos"
                                 value={values.location}
                                 onChange={handleChange}
                                 required
-                            />
+                            >
+                                <option value="" disabled>Select an area</option>
+                                {LAGOS_AREAS.map((group) => (
+                                    <optgroup key={group.group} label={group.group}>
+                                        {group.areas.map((area) => (
+                                            <option key={area} value={area}>{area}</option>
+                                        ))}
+                                    </optgroup>
+                                ))}
+                            </select>
                         </div>
 
                         <div className="form-row">

@@ -1,0 +1,68 @@
+// Major areas/neighbourhoods across Lagos, grouped by mainland/island so the
+// dropdown reads sensibly instead of one long alphabetical dump.
+export const LAGOS_AREAS = [
+    {
+        group: "Mainland",
+        areas: [
+            "Yaba",
+            "Surulere",
+            "Ikeja",
+            "Gbagada",
+            "Ogba",
+            "Ojota",
+            "Maryland",
+            "Anthony",
+            "Alapere",
+            "Ketu",
+            "Mile 12",
+            "Ojodu",
+            "Berger",
+            "Agege",
+            "Ogudu",
+            "Shomolu",
+            "Bariga",
+            "Fadeyi",
+            "Mushin",
+            "Oshodi",
+            "Isolo",
+            "Ejigbo",
+            "Egbeda",
+            "Iyana Ipaja",
+            "Abule Egba",
+            "Alimosho",
+            "Ikotun",
+            "Igando",
+            "Festac",
+            "Amuwo Odofin",
+            "Apapa",
+            "Ajao Estate",
+            "Okota",
+        ],
+    },
+    {
+        group: "Island / Lekki-Ajah axis",
+        areas: [
+            "Victoria Island",
+            "Ikoyi",
+            "Lekki Phase 1",
+            "Lekki Phase 2",
+            "Chevron",
+            "Ajah",
+            "Sangotedo",
+            "Awoyaya",
+            "Ikate",
+            "Osapa London",
+            "Agungi",
+            "VGC",
+            "Jakande",
+            "Oniru",
+        ],
+    },
+    {
+        group: "Other",
+        areas: ["Ikorodu", "Epe", "Badagry", "Other (specify in description)"],
+    },
+];
+
+// Flat list, handy when you just need every option without the group headers
+export const LAGOS_AREAS_FLAT = LAGOS_AREAS.flatMap((g) => g.areas);

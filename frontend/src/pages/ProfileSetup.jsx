@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 import FileUploadField from "../components/FileUploadField";
 import "../styles/theme.css";
 import "../styles/detail.css";
+import { LAGOS_AREAS } from "../utils/lagosAreas";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -256,14 +257,21 @@ const ProfileSetup = () => {
                             >
                                 <div className="form-field">
                                     <label htmlFor="apartment_location">Apartment location</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         id="apartment_location"
                                         name="apartment_location"
-                                        placeholder="e.g. Surulere, Lagos"
                                         value={values.apartment_location}
                                         onChange={handleChange}
-                                    />
+                                    >
+                                        <option value="" disabled>Select an area</option>
+                                        {LAGOS_AREAS.map((group) => (
+                                            <optgroup key={group.group} label={group.group}>
+                                                {group.areas.map((area) => (
+                                                    <option key={area} value={area}>{area}</option>
+                                                ))}
+                                            </optgroup>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div className="form-row">
                                     <div className="form-field">
@@ -326,3 +334,4 @@ const ProfileSetup = () => {
 };
 
 export default ProfileSetup;
+    

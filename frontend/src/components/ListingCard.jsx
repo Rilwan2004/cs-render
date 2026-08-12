@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { CheckIcon, HeartIcon, PinIcon, ImageIcon, HomeIcon, DocIcon } from "./Icons";
+import { isVideoUrl } from "../utils/listings";
 
 const TINTS = [
     { className: "tint-sun", Icon: ImageIcon },
@@ -15,6 +16,7 @@ const formatPrice = (price) => {
 
 const ListingCard = ({ listing, index }) => {
     const tint = TINTS[index % TINTS.length];
+    const coverImage = listing.media?.[0];
 
     return (
         <Link to={`/listings/${listing.source}/${listing.id}`} className="listing-card">
@@ -25,7 +27,15 @@ const ListingCard = ({ listing, index }) => {
                 <span className="icon-btn">
                     <HeartIcon width="16" height="16" />
                 </span>
-                <tint.Icon />
+                {coverImage ? (
+                    isVideoUrl(coverImage) ? (
+                        <video src={coverImage} className="listing-card-photo" muted playsInline preload="metadata" />
+                    ) : (
+                        <img src={coverImage} alt={listing.title} className="listing-card-photo" loading="lazy" />
+                    )
+                ) : (
+                    <tint.Icon />
+                )}
             </div>
             <div className="listing-card-body">
                 <div className="listing-price mono">

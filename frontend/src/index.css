@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+/* Without an explicit background, browsers can paint the overscroll/bounce
+   area (and any gap above a sticky element) using a dark default canvas in
+   dark-mode systems — that's the stray black sliver above the navbar.
+   Pin it to the app's paper color everywhere. */
+:root{
+  color-scheme: light;
+}
+html, body{
+  background: #F7F7F5;
+}
