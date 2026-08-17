@@ -2,7 +2,10 @@ import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import USPBar from "../components/USPBar";
+import StickyMobileCTA from "../components/StickyMobileCTA";
 import { CheckIcon } from "../components/Icons";
+import { useDocumentHead } from "../utils/seo";
 import "../styles/theme.css";
 import "../styles/landing.css";
 
@@ -28,6 +31,11 @@ const Landing = () => {
     const navigate = useNavigate();
     const isLoggedIn = !!localStorage.getItem("token");
 
+    useDocumentHead({
+        description:
+            "Find a verified NYSC corper roommate in Lagos, or list your spare room. No agents, no WhatsApp groups, contact details stay private until you both accept.",
+    });
+
     // Logged-in users have no reason to see the marketing landing page,
     // send them straight to their dashboard instead.
     useEffect(() => {
@@ -43,13 +51,14 @@ const Landing = () => {
     return (
         <div className="themed">
             <Navbar variant="landing" />
+            <USPBar />
 
             <section className="hero">
                 <div className="hero-inner">
                     <div className="hero-copy reveal in-view">
                         <span className="eyebrow">Built for NYSC corpers in Lagos</span>
                         <h1>
-                            The safest way to <span className="gradient-text">match</span> with a roommate.
+                            The safest way to <span className="gradient-text">match</span> with a Lagos roommate.
                         </h1>
                         <p className="body-lg">
                             Skip the WhatsApp groups and shady agents. Search verified corpers
@@ -63,10 +72,10 @@ const Landing = () => {
                                 How it works
                             </a>
                         </div>
-                        {/* <div className="trust-micro">
+                        <div className="trust-micro">
                             <CheckIcon width="16" height="16" />
                             Verified corpers only, no agents pretending to be roommates
-                        </div> */}
+                        </div>
                     </div>
 
                     <div className="hero-visual">
@@ -109,6 +118,7 @@ const Landing = () => {
             </section>
 
             <Footer />
+            <StickyMobileCTA />
         </div>
     );
 };
