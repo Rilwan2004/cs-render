@@ -4,7 +4,9 @@ import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ListingCard from "../components/ListingCard";
+import StickyMobileCTA from "../components/StickyMobileCTA";
 import { normalizeAgentListing, normalizeCorperListing } from "../utils/listings";
+import { useDocumentHead } from "../utils/seo";
 import "../styles/theme.css";
 import "../styles/listings.css";
 
@@ -18,6 +20,10 @@ const SORTS = [
 
 const Listings = () => {
     const navigate = useNavigate();
+    useDocumentHead({
+        title: "Browse listings",
+        description: "Browse verified rooms from agents and corpers with a spare space across Lagos.",
+    });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [listings, setListings] = useState([]);
@@ -160,6 +166,7 @@ const Listings = () => {
             </div>
 
             <Footer />
+            <StickyMobileCTA />
         </div>
     );
 };

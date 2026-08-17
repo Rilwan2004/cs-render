@@ -10,10 +10,14 @@ import ListingDetail from "./pages/ListingDetail";
 import PostListing from "./pages/PostListing";
 import Applications from "./pages/Applications";
 import RoommateRequests from "./pages/RoommateRequests";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import NotFound from "./pages/NotFound";
+import RouteTracker from "./components/RouteTracker";
 
 function App() {
   return (
     <BrowserRouter>
+      <RouteTracker />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/dashboard" element={<Dashboard />} />
@@ -26,6 +30,8 @@ function App() {
         <Route path="/applications" element={<Applications />} />
         <Route path="/requests" element={<RoommateRequests />} />
         <Route path="/listings/:source/:id" element={<ListingDetail />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   )

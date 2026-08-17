@@ -4,8 +4,9 @@ import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import MediaSlider from "../components/MediaSlider";
-import { CheckIcon, HeartIcon, PinIcon, ArrowLeftIcon, LockIcon, MailIcon, PhoneIcon } from "../components/Icons";
+import { CheckIcon, HeartIcon, PinIcon, ArrowLeftIcon, LockIcon, MailIcon, PhoneIcon, ClockIcon } from "../components/Icons";
 import { normalizeAgentListing, normalizeCorperListing } from "../utils/listings";
+import { useDocumentHead } from "../utils/seo";
 import "../styles/theme.css";
 import "../styles/listings.css";
 import "../styles/detail.css";
@@ -28,6 +29,13 @@ const ListingDetail = () => {
     const [contact, setContact] = useState(null);
     const [sending, setSending] = useState(false);
     const [actionError, setActionError] = useState("");
+
+    useDocumentHead({
+        title: listing?.title,
+        description: listing
+            ? `${listing.title} in ${listing.location}, ₦${formatPrice(listing.price)}/year. ${(listing.description || "").slice(0, 120)}`
+            : undefined,
+    });
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -242,13 +250,18 @@ const ListingDetail = () => {
                             </div>
                         )}
                         {!status && (
-                            <button className="btn btn-primary btn-full" onClick={handleAction} disabled={sending}>
-                                {sending
-                                    ? "Sending..."
-                                    : source === "agent"
-                                        ? "Apply Now"
-                                        : "Send Roommate Request"}
-                            </button>
+                            <>
+                                <button className="btn btn-primary btn-full" onClick={handleAction} disabled={sending}>
+                                    {sending
+                                        ? "Sending..."
+                                        : source === "agent"
+                                            ? "Apply Now"
+                                            : "Send Roommate Request"}
+                                </button>
+                                <p className="response-time-note">
+                                    <ClockIcon width="14" height="14" /> Most listings get a reply within 24 hours
+                                </p>
+                            </>
                         )}
                         {actionError && <p className="form-error">{actionError}</p>}
                     </div>

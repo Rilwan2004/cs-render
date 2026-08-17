@@ -3,10 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/theme.css";
 import "../styles/detail.css";
+import { useDocumentHead } from "../utils/seo";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const Login = () => {
+    useDocumentHead({ title: "Login" });
     const [values, setValues] = React.useState({
         email: "",
         password: ""
