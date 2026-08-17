@@ -4,9 +4,12 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import USPBar from "../components/USPBar";
 import StickyMobileCTA from "../components/StickyMobileCTA";
-import { CheckIcon } from "../components/Icons";
+import { CheckIcon, HeartIcon, PinIcon } from "../components/Icons";
 import { useDocumentHead } from "../utils/seo";
+import { useReveal } from "../utils/useReveal";
+import heroImage from "../assets/hero.png";
 import "../styles/theme.css";
+import "../styles/listings.css";
 import "../styles/landing.css";
 
 const STEPS = [
@@ -27,11 +30,23 @@ const STEPS = [
     },
 ];
 
+const StepCard = ({ step }) => {
+    const ref = useReveal();
+    return (
+        <div className="step-card glass-light reveal" ref={ref} key={step.num}>
+            <span className="step-num">{step.num}</span>
+            <h3>{step.title}</h3>
+            <p>{step.body}</p>
+        </div>
+    );
+};
+
 const Landing = () => {
     const navigate = useNavigate();
     const isLoggedIn = !!localStorage.getItem("token");
 
     useDocumentHead({
+        title: "Find a verified roommate in Lagos",
         description:
             "Find a verified NYSC corper roommate in Lagos, or list your spare room. No agents, no WhatsApp groups, contact details stay private until you both accept.",
     });
@@ -49,7 +64,7 @@ const Landing = () => {
     }
 
     return (
-        <div className="themed">
+        <div className="themed landing-page">
             <Navbar variant="landing" />
             <USPBar />
 
@@ -58,7 +73,7 @@ const Landing = () => {
                     <div className="hero-copy reveal in-view">
                         <span className="eyebrow">Built for NYSC corpers in Lagos</span>
                         <h1>
-                            The safest way to <span className="gradient-text">match</span> with a Lagos roommate.
+                            Find a roommate <span className="gradient-text">you can trust</span>.
                         </h1>
                         <p className="body-lg">
                             Skip the WhatsApp groups and shady agents. Search verified corpers
@@ -72,28 +87,34 @@ const Landing = () => {
                                 How it works
                             </a>
                         </div>
-                        <div className="trust-micro">
-                            <CheckIcon width="16" height="16" />
-                            Verified corpers only, no agents pretending to be roommates
-                        </div>
                     </div>
 
                     <div className="hero-visual">
-                        <div className="match-seal">
-                            <div className="seal-card seal-card-left glass">
-                                <div className="seal-avatar"></div>
-                                <div className="seal-line"></div>
-                                <div className="seal-line short"></div>
-                                <div className="seal-badge">
-                                    <CheckIcon width="10" height="10" />
-                                </div>
+                        <div className="hero-photo-card">
+                            <img src={heroImage} alt="Housing estate in Lagos" />
+                        </div>
+
+                        <div className="hero-mockup-card listing-card">
+                            <div className="listing-card-image tint-ember">
+                                <span className="badge-verified">
+                                    <CheckIcon /> Verified
+                                </span>
+                                <span className="icon-btn">
+                                    <HeartIcon width="16" height="16" />
+                                </span>
+                                <img src={heroImage} alt="" className="listing-card-photo" />
                             </div>
-                            <div className="seal-card seal-card-right glass">
-                                <div className="seal-avatar"></div>
-                                <div className="seal-line"></div>
-                                <div className="seal-line short"></div>
-                                <div className="seal-badge">
-                                    <CheckIcon width="10" height="10" />
+                            <div className="listing-card-body">
+                                <div className="listing-price mono">
+                                    &#8358;450,000 <span className="unit">/year (annual)</span>
+                                </div>
+                                <div className="listing-title">Private room in Yaba</div>
+                                <div className="listing-location">
+                                    <PinIcon />
+                                    Yaba &middot; Private room
+                                </div>
+                                <div className="listing-tags">
+                                    <span className="tag-pill">1 slot available</span>
                                 </div>
                             </div>
                         </div>
@@ -107,11 +128,7 @@ const Landing = () => {
                     <h2>Three steps to a verified match</h2>
                     <div className="steps-grid">
                         {STEPS.map((step) => (
-                            <div className="step-card glass-light" key={step.num}>
-                                <span className="step-num">{step.num}</span>
-                                <h3>{step.title}</h3>
-                                <p>{step.body}</p>
-                            </div>
+                            <StepCard step={step} key={step.num} />
                         ))}
                     </div>
                 </div>
