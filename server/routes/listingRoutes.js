@@ -1,11 +1,11 @@
 import express from "express";
 import { connectToDatabase } from "../lib/db.js";
-import { verifyToken } from "../middleware/auth.js";
+import { verifyToken, requireCorpsMember } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// GET /listings - anyone logged in can browse active listings
-router.get("/", verifyToken, async (req, res) => {
+// GET /listings - browsing is a corps-member feature, agents only post and view their own
+router.get("/", verifyToken, requireCorpsMember, async (req, res) => {
     try {
         const db = await connectToDatabase();
         const [rows] = await db.query(

@@ -1,11 +1,11 @@
 import express from "express";
 import { connectToDatabase } from "../lib/db.js";
-import { verifyToken } from "../middleware/auth.js";
+import { verifyToken, requireCorpsMember } from "../middleware/auth.js";
 
 const router = express.Router();
 
 // GET /roommates - browse other corps members' profiles (excludes self, excludes agents, excludes password)
-router.get("/", verifyToken, async (req, res) => {
+router.get("/", verifyToken, requireCorpsMember, async (req, res) => {
     try {
         const db = await connectToDatabase();
         const [rows] = await db.query(
@@ -23,7 +23,7 @@ router.get("/", verifyToken, async (req, res) => {
 });
 
 // POST /roommates/request - send a roommate request to another corps member
-router.post("/request", verifyToken, async (req, res) => {
+router.post("/request", verifyToken, requireCorpsMember, async (req, res) => {
     const { requested_id } = req.body;
 
     if (!requested_id) {
@@ -35,6 +35,12 @@ router.post("/request", verifyToken, async (req, res) => {
 
     try {
         const db = await connectToDatabase();
+        // Confirm the target is actually a corps member, not just any user id
+        const [targetRows] = await db.query("SELECT role FROM user WHERE id = ?", [requested_id]);
+        if (targetRows.length === 0 || targetRows[0].role !== 'corps_member') {
+            return res.status(400).json({ message: "You can only send roommate requests to corps members" });
+        }
+
         await db.query(
             "INSERT INTO roommate_requests (requester_id, requested_id, status) VALUES (?, ?, 'pending')",
             [req.userId, requested_id]
@@ -51,7 +57,7 @@ router.post("/request", verifyToken, async (req, res) => {
 
 // GET /roommates/requests/mine - requests I sent, with status.
 // Contact info only appears once status is 'accepted'.
-router.get("/requests/mine", verifyToken, async (req, res) => {
+router.get("/requests/mine", verifyToken, requireCorpsMember, async (req, res) => {
     try {
         const db = await connectToDatabase();
         const [rows] = await db.query(
@@ -72,7 +78,7 @@ router.get("/requests/mine", verifyToken, async (req, res) => {
 
 // GET /roommates/requests/incoming - requests sent to me, with status.
 // Contact info only appears once status is 'accepted'.
-router.get("/requests/incoming", verifyToken, async (req, res) => {
+router.get("/requests/incoming", verifyToken, requireCorpsMember, async (req, res) => {
     try {
         const db = await connectToDatabase();
         const [rows] = await db.query(
@@ -92,7 +98,7 @@ router.get("/requests/incoming", verifyToken, async (req, res) => {
 });
 
 // PATCH /roommates/requests/:id - accept or decline a request sent to me
-router.patch("/requests/:id", verifyToken, async (req, res) => {
+router.patch("/requests/:id", verifyToken, requireCorpsMember, async (req, res) => {
     const { status } = req.body;
 
     if (!['accepted', 'declined'].includes(status)) {

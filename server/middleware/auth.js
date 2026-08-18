@@ -30,3 +30,20 @@ export const requireAgent = async (req, res, next) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
+// Must run after verifyToken - relies on req.userId being set.
+// Agents don't browse listings, apply to them, or use roommate matching -
+// that's the corps-member side of the app.
+export const requireCorpsMember = async (req, res, next) => {
+    try {
+        const db = await connectToDatabase();
+        const [rows] = await db.query("SELECT role FROM user WHERE id = ?", [req.userId]);
+        if (rows.length === 0 || rows[0].role !== 'corps_member') {
+            return res.status(403).json({ message: "This is only available to corps members" });
+        }
+        next();
+    } catch (err) {
+        console.error("requireCorpsMember error:", err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};

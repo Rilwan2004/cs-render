@@ -1,11 +1,11 @@
 import express from "express";
 import { connectToDatabase } from "../lib/db.js";
-import { verifyToken } from "../middleware/auth.js";
+import { verifyToken, requireCorpsMember } from "../middleware/auth.js";
 
 const router = express.Router();
 
 // POST /interests - corps member expresses interest in a listing
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", verifyToken, requireCorpsMember, async (req, res) => {
     const { listing_id } = req.body;
 
     if (!listing_id) {
@@ -30,7 +30,7 @@ router.post("/", verifyToken, async (req, res) => {
 
 // GET /interests/mine - corps member: see their own submitted interests + status.
 // Contact info (agent's email) only appears once status is 'accepted'.
-router.get("/mine", verifyToken, async (req, res) => {
+router.get("/mine", verifyToken, requireCorpsMember, async (req, res) => {
     try {
         const db = await connectToDatabase();
         const [rows] = await db.query(
