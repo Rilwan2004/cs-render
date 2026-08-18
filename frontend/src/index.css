@@ -9,4 +9,10 @@
 }
 html, body{
   background: #F7F7F5;
+  /* Guards against any decorative/absolute-positioned element pushing the
+     page wider than the viewport, which is what makes otherwise-centered
+     content look off-center on phones (a stray horizontal scrollbar shifts
+     the visible viewport). */
+  overflow-x: hidden;
+  width: 100%;
 }

@@ -14,12 +14,12 @@ const formatPrice = (price) => {
     return num.toLocaleString("en-NG");
 };
 
-const ListingCard = ({ listing, index }) => {
+const ListingCard = ({ listing, index, linkTo }) => {
     const tint = TINTS[index % TINTS.length];
     const coverImage = listing.media?.[0];
 
     return (
-        <Link to={`/listings/${listing.source}/${listing.id}`} className="listing-card">
+        <Link to={linkTo || `/listings/${listing.source}/${listing.id}`} className="listing-card">
             <div className={`listing-card-image ${tint.className}`}>
                 <span className="badge-verified">
                     <CheckIcon /> Verified

@@ -4,7 +4,7 @@ import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ListingCard from "../components/ListingCard";
-import { normalizeAgentListing } from "../utils/listings";
+import { normalizeAgentListing, normalizeCorperListing } from "../utils/listings";
 import "../styles/theme.css";
 import "../styles/listings.css";
 
@@ -22,9 +22,24 @@ const MyListings = () => {
             navigate("/");
             return;
         }
-        axios
-            .get(`${API_URL}/listings/mine`, { headers: { Authorization: `Bearer ${token}` } })
-            .then((res) => setListings(res.data.listings.map(normalizeAgentListing)))
+        const headers = { Authorization: `Bearer ${token}` };
+
+        Promise.all([
+            axios.get(`${API_URL}/listings/mine`, { headers }),
+            // Pull the logged-in user's own profile too: if they've ticked
+            // "I already have an apartment" and filled the form, that spare
+            // room should show up here automatically, without them having to
+            // post it again through the separate "Post a listing" flow.
+            axios.get(`${API_URL}/auth/home`, { headers }),
+        ])
+            .then(([listingsRes, homeRes]) => {
+                const posted = listingsRes.data.listings.map(normalizeAgentListing);
+                const user = homeRes.data.user;
+                const apartmentFromProfile = user.has_apartment
+                    ? [normalizeCorperListing(user)]
+                    : [];
+                setListings([...apartmentFromProfile, ...posted]);
+            })
             .catch((err) => {
                 console.error("Error fetching my listings:", err);
                 setError("Couldn't load your listings right now.");
@@ -37,7 +52,7 @@ const MyListings = () => {
             <Navbar active="mine" />
             <div className="section-inner listings-header">
                 <h1>My listings</h1>
-                <p className="subtitle">Everything you've posted, agent or corper.</p>
+                <p className="subtitle">Everything you've posted.</p>
             </div>
 
             <div className="section-inner">
@@ -58,7 +73,15 @@ const MyListings = () => {
                 {!loading && !error && listings.length > 0 && (
                     <div className="listings-grid">
                         {listings.map((listing, i) => (
-                            <ListingCard key={listing.id} listing={listing} index={i} />
+                            <ListingCard
+                                key={`${listing.source}-${listing.id}`}
+                                listing={listing}
+                                index={i}
+                                // The profile-based apartment card can't open a normal
+                                // listing detail page (that view excludes your own
+                                // profile), so send it to the editable profile form.
+                                linkTo={listing.source === "corper" ? "/profile" : undefined}
+                            />
                         ))}
                     </div>
                 )}
