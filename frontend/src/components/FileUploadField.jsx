@@ -22,6 +22,13 @@ const FileUploadField = forwardRef(({ initialUrls = [] }, ref) => {
                 setUploading(false);
             }
         },
+        // Clears out everything, including previews, so a "create new" form
+        // (e.g. Post a listing) can start fresh after a successful submit.
+        reset: () => {
+            setExisting([]);
+            setPendingFiles([]);
+            setPreviews([]);
+        },
     }));
 
     const handleFileChange = (e) => {

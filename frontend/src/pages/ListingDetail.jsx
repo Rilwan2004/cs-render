@@ -84,6 +84,13 @@ const ListingDetail = () => {
                     if (existing) {
                         setStatus(existing.status);
                         setContact({ email: existing.contact, phone: existing.contact_phone });
+                        // This is the "requesting user has now seen the accepted
+                        // request" moment — clear the New badge back on /requests.
+                        if (existing.status === "accepted" && !existing.seen_by_requester) {
+                            axios
+                                .patch(`${API_URL}/roommates/requests/${existing.id}/seen`, {}, { headers })
+                                .catch((err) => console.error("Error marking request seen:", err));
+                        }
                     }
                 }
             } catch (err) {

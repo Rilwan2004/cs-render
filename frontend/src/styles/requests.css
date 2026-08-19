@@ -1,4 +1,9 @@
 .request-list{display:flex; flex-direction:column; gap:12px; padding-bottom:60px;}
+.request-section{margin-bottom:8px;}
+.request-section-title{
+  font-family:'Aleo',serif; font-size:16px; font-weight:600;
+  color:var(--ink-900); margin:0 0 12px;
+}
 .request-row{
   display:flex; align-items:center; gap:14px;
   background:var(--paper-raised);
@@ -6,6 +11,23 @@
   padding:16px 18px;
   box-shadow:var(--shadow-rest);
   flex-wrap:wrap;
+}
+.request-row-clickable{
+  cursor:pointer;
+  transition:box-shadow .15s ease, transform .15s ease;
+}
+.request-row-clickable:hover, .request-row-clickable:focus-visible{
+  box-shadow:var(--shadow-lift, 0 8px 24px rgba(18,20,28,0.12));
+  transform:translateY(-1px);
+  outline:none;
+}
+.request-new-badge{
+  display:inline-block;
+  margin-left:8px;
+  font-size:10px; font-weight:700; letter-spacing:.03em; text-transform:uppercase;
+  background:var(--ember-500); color:#fff;
+  padding:2px 8px; border-radius:var(--r-full);
+  vertical-align:middle;
 }
 .request-avatar{
   width:40px; height:40px; border-radius:50%;

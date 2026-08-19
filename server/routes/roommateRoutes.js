@@ -56,13 +56,16 @@ router.post("/request", verifyToken, requireCorpsMember, async (req, res) => {
 });
 
 // GET /roommates/requests/mine - requests I sent, with status.
-// Contact info only appears once status is 'accepted'.
+// Contact info only appears once status is 'accepted'. seen_by_requester
+// tracks whether I've opened the accepted profile yet, so the UI can show a
+// "New" badge until then.
 router.get("/requests/mine", verifyToken, requireCorpsMember, async (req, res) => {
     try {
         const db = await connectToDatabase();
         const [rows] = await db.query(
-            `SELECT r.id, r.status, r.created_at, u.username,
-                    CASE WHEN r.status = 'accepted' THEN u.email ELSE NULL END AS contact
+            `SELECT r.id, r.status, r.seen_by_requester, r.created_at, r.requested_id, u.username,
+                    CASE WHEN r.status = 'accepted' THEN u.email ELSE NULL END AS contact,
+                    CASE WHEN r.status = 'accepted' THEN u.phone ELSE NULL END AS contact_phone
              FROM roommate_requests r
              JOIN user u ON r.requested_id = u.id
              WHERE r.requester_id = ?
@@ -83,7 +86,8 @@ router.get("/requests/incoming", verifyToken, requireCorpsMember, async (req, re
         const db = await connectToDatabase();
         const [rows] = await db.query(
             `SELECT r.id, r.status, r.created_at, u.username,
-                    CASE WHEN r.status = 'accepted' THEN u.email ELSE NULL END AS contact
+                    CASE WHEN r.status = 'accepted' THEN u.email ELSE NULL END AS contact,
+                    CASE WHEN r.status = 'accepted' THEN u.phone ELSE NULL END AS contact_phone
              FROM roommate_requests r
              JOIN user u ON r.requester_id = u.id
              WHERE r.requested_id = ?
@@ -96,6 +100,27 @@ router.get("/requests/incoming", verifyToken, requireCorpsMember, async (req, re
         return res.status(500).json({ message: "Internal server error" });
     }
 });
+
+// PATCH /roommates/requests/:id/seen - mark an accepted request (that I sent)
+// as seen, once I've opened the profile/listing and viewed the unblurred
+// contact details. Only the original requester can mark it seen.
+router.patch("/requests/:id/seen", verifyToken, requireCorpsMember, async (req, res) => {
+    try {
+        const db = await connectToDatabase();
+        const [result] = await db.query(
+            "UPDATE roommate_requests SET seen_by_requester = 1 WHERE id = ? AND requester_id = ? AND status = 'accepted'",
+            [req.params.id, req.userId]
+        );
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Request not found" });
+        }
+        return res.status(200).json({ message: "Marked as seen" });
+    } catch (err) {
+        console.error("Mark roommate request seen error:", err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
 
 // PATCH /roommates/requests/:id - accept or decline a request sent to me
 router.patch("/requests/:id", verifyToken, requireCorpsMember, async (req, res) => {

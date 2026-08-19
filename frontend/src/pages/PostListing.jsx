@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import FileUploadField from "../components/FileUploadField";
+import Toast from "../components/Toast";
 import { LAGOS_AREAS } from "../utils/lagosAreas";
 import "../styles/theme.css";
 import "../styles/listings.css";
@@ -46,17 +47,18 @@ const PostListing = () => {
         setError("");
         setSuccess("");
         setSubmitting(true);
-        // Scroll to the top of the form right away so the person immediately
-        // sees the success/error message land once the request resolves.
-        formCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         const token = localStorage.getItem("token");
         try {
             const images = await uploadRef.current.resolveUrls(token);
             await axios.post(`${API_URL}/listings`, { ...values, images }, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setSuccess("Listing posted, it's now live in Browse listings.");
             setValues({ location: "", price: "", slots_available: "1", description: "", expires_at: "" });
+            uploadRef.current.reset();
+            // Land back at the top of the page so the success toast (and the
+            // now-empty form) is the first thing visible.
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            setSuccess("Listing posted, it's now live in Browse listings.");
         } catch (err) {
             console.error("Post listing error:", err);
             setError(err.response?.data?.message || "Something went wrong. Please try again.");
@@ -77,6 +79,7 @@ const PostListing = () => {
     return (
         <div className="themed">
             <Navbar active="post" />
+            <Toast message={success} onDismiss={() => setSuccess("")} />
             <div className="section-inner" style={{ padding: "20px 20px 60px" }}>
                 <div className="form-card" ref={formCardRef}>
                     <h1 style={{ fontSize: 24, marginBottom: 6 }}>Post a listing</h1>
@@ -86,14 +89,6 @@ const PostListing = () => {
                     </p>
 
                     {error && <p className="form-error" style={{ marginBottom: 16 }}>{error}</p>}
-                    {success && (
-                        <p className="form-success" style={{ marginBottom: 16 }}>
-                            {success}{" "}
-                            <Link to="/listings/mine" style={{ color: "var(--ember-500)", fontWeight: 600 }}>
-                                View my listings
-                            </Link>
-                        </p>
-                    )}
 
                     <form onSubmit={handleSubmit}>
                         <div className="form-field">

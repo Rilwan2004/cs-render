@@ -4,6 +4,7 @@ import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import FileUploadField from "../components/FileUploadField";
+import Toast from "../components/Toast";
 import "../styles/theme.css";
 import "../styles/detail.css";
 import { LAGOS_AREAS } from "../utils/lagosAreas";
@@ -115,6 +116,10 @@ const ProfileSetup = () => {
             await axios.patch(`${API_URL}/auth/profile`, payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+            // Scroll up so the confirmation toast is immediately visible, even
+            // if they were editing fields further down the form. Values stay
+            // filled in since this is an edit, not a one-off submission.
+            window.scrollTo({ top: 0, behavior: "smooth" });
             setSuccess("Profile updated!");
         } catch (err) {
             console.error("Error updating profile:", err);
@@ -136,6 +141,7 @@ const ProfileSetup = () => {
     return (
         <div className="themed">
             <Navbar />
+            <Toast message={success} onDismiss={() => setSuccess("")} />
             <div className="section-inner" style={{ padding: "40px 20px 60px" }}>
                 <div className="form-card">
                     <span className="eyebrow" style={{ marginBottom: 4 }}>Your profile</span>
@@ -145,7 +151,6 @@ const ProfileSetup = () => {
                     </p>
 
                     {error && <p className="form-error" style={{ marginBottom: 16 }}>{error}</p>}
-                    {success && <p className="form-success" style={{ marginBottom: 16 }}>{success}</p>}
 
                     <form onSubmit={handleSubmit}>
                         <div className="form-field">

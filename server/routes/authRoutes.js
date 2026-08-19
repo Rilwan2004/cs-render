@@ -3,12 +3,13 @@ import {connectToDatabase} from "../lib/db.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { verifyToken } from "../middleware/auth.js";
+import { loginLimiter, registerLimiter } from "../middleware/rateLimiters.js";
 
 const router = express.Router();
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-router.post("/register", async (req, res) => {
+router.post("/register", registerLimiter, async (req, res) => {
     const { username, email, password, role } = req.body;
 
     if (!username || !email || !password) {
@@ -43,7 +44,7 @@ router.post("/register", async (req, res) => {
     }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", loginLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
