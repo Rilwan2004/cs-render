@@ -88,13 +88,24 @@ const Listings = () => {
         return result;
     }, [listings, sourceFilter, sort, search]);
 
+    // A live, descriptive intro line rather than a static one-liner — updates
+    // as filters change so it always reflects what's actually on screen.
+    const introText = useMemo(() => {
+        if (loading) return "Loading available rooms across Lagos...";
+        if (error) return "Agent rooms and corpers with a spare space, all in one place.";
+        const count = visibleListings.length;
+        const scopeLabel =
+            sourceFilter === "agent" ? "from verified agents" : sourceFilter === "corper" ? "from fellow corpers" : "from agents and fellow corpers";
+        return `There ${count === 1 ? "is" : "are"} ${count} room${count === 1 ? "" : "s"} available right now, ${scopeLabel}, all postable and contactable directly through Corpspace. Search by location or filter below to find the right fit.`;
+    }, [loading, error, visibleListings.length, sourceFilter]);
+
     return (
         <div className="themed">
             <Navbar active="browse" />
 
             <div className="section-inner listings-header">
                 <h1>Browse listings</h1>
-                <p className="subtitle">Agent rooms and corpers with a spare space, all in one place.</p>
+                <p className="subtitle">{introText}</p>
             </div>
 
             <div className="section-inner">
@@ -128,18 +139,6 @@ const Listings = () => {
                             Corper
                         </button>
                     </div>
-
-                    <select
-                        className="filter-select"
-                        value={sort}
-                        onChange={(e) => setSort(e.target.value)}
-                    >
-                        {SORTS.map((s) => (
-                            <option key={s.key} value={s.key}>
-                                {s.label}
-                            </option>
-                        ))}
-                    </select>
                 </div>
 
                 {!loading && !error && (
@@ -147,6 +146,21 @@ const Listings = () => {
                         <span className="count">
                             {visibleListings.length} <span>listing{visibleListings.length === 1 ? "" : "s"}</span>
                         </span>
+                        <div className="sort-inline">
+                            <label htmlFor="sort-select">Sort</label>
+                            <select
+                                id="sort-select"
+                                className="filter-select"
+                                value={sort}
+                                onChange={(e) => setSort(e.target.value)}
+                            >
+                                {SORTS.map((s) => (
+                                    <option key={s.key} value={s.key}>
+                                        {s.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                 )}
 

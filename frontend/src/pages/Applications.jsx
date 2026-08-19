@@ -71,12 +71,26 @@ const Applications = () => {
             <Navbar active="applications" />
             <div className="section-inner listings-header">
                 <h1>Applications</h1>
-                <p className="subtitle">Everyone who's applied to one of your listings.</p>
+                <p className="subtitle">
+                    {loading
+                        ? "Loading applications..."
+                        : applications.length === 0
+                        ? "Once someone applies to one of your listings, they'll show up here."
+                        : `${applications.length} corper${applications.length === 1 ? " has" : "s have"} applied to your listings. Accept the right fit and the rest are handled automatically once a room fills up.`}
+                </p>
             </div>
 
             <div className="section-inner">
                 {loading && <p style={{ color: "var(--slate-500)", padding: "40px 0" }}>Loading...</p>}
                 {error && <p className="form-error" style={{ maxWidth: 400 }}>{error}</p>}
+
+                {!loading && !error && applications.length > 0 && (
+                    <div className="listings-meta">
+                        <span className="count">
+                            {applications.length} <span>application{applications.length === 1 ? "" : "s"}</span>
+                        </span>
+                    </div>
+                )}
 
                 {!loading && !error && applications.length === 0 && (
                     <div className="listings-empty">

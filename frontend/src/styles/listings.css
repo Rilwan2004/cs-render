@@ -26,10 +26,13 @@
 .browse-type-card p{font-size:12px; color:var(--slate-500);}
 
 /* ---------- PAGE HEADER ---------- */
-.listings-header{padding:40px 0 0;}
+.listings-header{padding:40px 0 24px;}
 .listings-header h1{font-size:32px;}
 @media (min-width:768px){.listings-header h1{font-size:40px;}}
-.listings-header .subtitle{color:var(--slate-500); font-size:16px; margin-top:8px;}
+.listings-header .subtitle{
+  color:var(--slate-500); font-size:16px; line-height:1.55;
+  margin-top:10px; max-width:640px;
+}
 
 /* ---------- FILTER BAR ---------- */
 .filter-bar{
@@ -90,10 +93,14 @@
 /* ---------- LISTINGS META ROW ---------- */
 .listings-meta{
   display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:12px;
   margin-bottom:20px; font-size:14px;
 }
 .listings-meta .count{color:var(--ink-900); font-weight:600;}
 .listings-meta .count span{color:var(--slate-500); font-weight:400;}
+.sort-inline{display:flex; align-items:center; gap:10px;}
+.sort-inline label{font-size:13px; color:var(--slate-500);}
+.sort-inline .filter-select{padding:8px 32px 8px 14px; font-size:13px;}
 
 /* ---------- CARD GRID ---------- */
 .listings-grid{

@@ -52,12 +52,19 @@ const MyListings = () => {
             <Navbar active="mine" />
             <div className="section-inner listings-header">
                 <h1>My listings</h1>
-                <p className="subtitle">Everything you've posted.</p>
             </div>
 
             <div className="section-inner">
                 {loading && <p style={{ color: "var(--slate-500)", padding: "40px 0" }}>Loading...</p>}
                 {error && <p className="form-error" style={{ maxWidth: 400 }}>{error}</p>}
+
+                {!loading && !error && listings.length > 0 && (
+                    <div className="listings-meta">
+                        <span className="count">
+                            {listings.length} <span>listing{listings.length === 1 ? "" : "s"}</span>
+                        </span>
+                    </div>
+                )}
 
                 {!loading && !error && listings.length === 0 && (
                     <div className="listings-empty">

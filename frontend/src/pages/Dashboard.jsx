@@ -129,7 +129,7 @@ const Dashboard = () => {
                 <div className="icon-wrap">
                   <CheckIcon width="20" height="20" />
                 </div>
-                <h3>Roommate requests</h3>
+                <h3>Requests</h3>
                 <p>See who wants to room with you and respond.</p>
               </Link>
             </>

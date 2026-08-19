@@ -11,6 +11,7 @@ import PostListing from "./pages/PostListing";
 import Applications from "./pages/Applications";
 import RoommateRequests from "./pages/RoommateRequests";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Safety from "./pages/Safety";
 import NotFound from "./pages/NotFound";
 import RouteTracker from "./components/RouteTracker";
 
@@ -31,6 +32,7 @@ function App() {
         <Route path="/requests" element={<RoommateRequests />} />
         <Route path="/listings/:source/:id" element={<ListingDetail />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/safety" element={<Safety />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
