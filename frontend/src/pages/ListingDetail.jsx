@@ -256,7 +256,12 @@ const ListingDetail = () => {
                                 {listing.posterName} declined this {source === "agent" ? "application" : "request"}.
                             </div>
                         )}
-                        {!status && (
+                        {!status && source === "agent" && listing.isFull && (
+                            <div className="status-banner declined">
+                                All slots for this room have been filled.
+                            </div>
+                        )}
+                        {!status && !(source === "agent" && listing.isFull) && (
                             <>
                                 <button className="btn btn-primary btn-full" onClick={handleAction} disabled={sending}>
                                     {sending

@@ -13,6 +13,8 @@ export const normalizeAgentListing = (listing) => ({
     location: listing.location,
     price: listing.price,
     slots: listing.slots_available,
+    slotsTaken: Number(listing.slots_taken || 0),
+    isFull: Number(listing.slots_taken || 0) >= Number(listing.slots_available),
     roomType: Number(listing.slots_available) > 1 ? "Shared room" : "Private room",
     description: listing.description,
     posterName: listing.agent_name,

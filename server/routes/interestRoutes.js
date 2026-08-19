@@ -14,6 +14,19 @@ router.post("/", verifyToken, requireCorpsMember, async (req, res) => {
 
     try {
         const db = await connectToDatabase();
+
+        const [listingRows] = await db.query("SELECT slots_available FROM listings WHERE id = ?", [listing_id]);
+        if (listingRows.length === 0) {
+            return res.status(404).json({ message: "This listing isn't available anymore." });
+        }
+        const [[{ acceptedCount }]] = await db.query(
+            "SELECT COUNT(*) AS acceptedCount FROM interests WHERE listing_id = ? AND status = 'accepted'",
+            [listing_id]
+        );
+        if (acceptedCount >= listingRows[0].slots_available) {
+            return res.status(400).json({ message: "This listing is already full." });
+        }
+
         await db.query(
             "INSERT INTO interests (listing_id, corps_member_id, status) VALUES (?, ?, 'pending')",
             [listing_id, req.userId]
@@ -84,7 +97,7 @@ router.patch("/:id", verifyToken, async (req, res) => {
         const db = await connectToDatabase();
         // Only allow the agent who owns the listing to update the interest
         const [rows] = await db.query(
-            `SELECT i.id FROM interests i
+            `SELECT i.id, i.listing_id FROM interests i
              JOIN listings l ON i.listing_id = l.id
              WHERE i.id = ? AND l.agent_id = ?`,
             [req.params.id, req.userId]
@@ -92,8 +105,27 @@ router.patch("/:id", verifyToken, async (req, res) => {
         if (rows.length === 0) {
             return res.status(404).json({ message: "Interest not found" });
         }
+        const { listing_id: listingId } = rows[0];
 
         await db.query("UPDATE interests SET status = ? WHERE id = ?", [status, req.params.id]);
+
+        // If this acceptance just filled the last slot, auto-decline whoever
+        // else is still pending on this listing rather than leaving them
+        // hanging or making the host clear them out one by one.
+        if (status === 'accepted') {
+            const [listingRows] = await db.query("SELECT slots_available FROM listings WHERE id = ?", [listingId]);
+            const [[{ acceptedCount }]] = await db.query(
+                "SELECT COUNT(*) AS acceptedCount FROM interests WHERE listing_id = ? AND status = 'accepted'",
+                [listingId]
+            );
+            if (listingRows.length > 0 && acceptedCount >= listingRows[0].slots_available) {
+                await db.query(
+                    "UPDATE interests SET status = 'declined' WHERE listing_id = ? AND status = 'pending'",
+                    [listingId]
+                );
+            }
+        }
+
         return res.status(200).json({ message: `Interest ${status}` });
     } catch (err) {
         console.error("Update interest error:", err);

@@ -4,16 +4,28 @@ import { verifyToken, requireCorpsMember } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// GET /listings - browsing is a corps-member feature, agents only post and view their own
+// GET /listings - browsing is a corps-member feature, agents only post and view their own.
+// slots_taken (accepted applicants so far) rides along so the frontend can hide
+// a listing from Browse once it's full, without breaking the detail page for
+// someone who was already accepted into it.
 router.get("/", verifyToken, requireCorpsMember, async (req, res) => {
     try {
         const db = await connectToDatabase();
         const [rows] = await db.query(
-            `SELECT l.id, l.location, l.price, l.slots_available, l.description, l.expires_at, l.created_at, l.images, u.username AS agent_name
+            `SELECT l.id, l.location, l.price, l.slots_available, l.description, l.expires_at, l.created_at, l.images, u.username AS agent_name,
+                    COALESCE(ac.accepted_count, 0) AS slots_taken
              FROM listings l
              JOIN user u ON l.agent_id = u.id
-             WHERE l.expires_at IS NULL OR l.expires_at >= CURDATE()
-             ORDER BY l.created_at DESC`
+             LEFT JOIN (
+                 SELECT listing_id, COUNT(*) AS accepted_count
+                 FROM interests
+                 WHERE status = 'accepted'
+                 GROUP BY listing_id
+             ) ac ON ac.listing_id = l.id
+             WHERE (l.expires_at IS NULL OR l.expires_at >= CURDATE())
+               AND l.agent_id != ?
+             ORDER BY l.created_at DESC`,
+            [req.userId]
         );
         return res.status(200).json({ listings: rows });
     } catch (err) {

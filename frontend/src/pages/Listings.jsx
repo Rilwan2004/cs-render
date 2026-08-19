@@ -46,7 +46,11 @@ const Listings = () => {
             axios.get(`${API_URL}/roommates`, { headers }),
         ])
             .then(([listingsRes, roommatesRes]) => {
-                const agentListings = listingsRes.data.listings.map(normalizeAgentListing);
+                // Full listings still exist server-side (so an accepted applicant
+                // can open its detail page), just hidden from Browse here.
+                const agentListings = listingsRes.data.listings
+                    .map(normalizeAgentListing)
+                    .filter((l) => !l.isFull);
                 const corperListings = roommatesRes.data.profiles
                     .filter((p) => p.has_apartment)
                     .map(normalizeCorperListing);
