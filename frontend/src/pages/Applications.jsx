@@ -35,10 +35,8 @@ const Applications = () => {
                 const homeRes = await axios.get(`${API_URL}/auth/home`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                if (homeRes.data.user.role !== "agent") {
-                    navigate("/dashboard");
-                    return;
-                }
+                // Anyone can post a listing (agent or corper), so anyone can
+                // receive applications on one — no role gate here.
                 await fetchApplications(token);
             } catch (err) {
                 console.error("Error loading applications:", err);
