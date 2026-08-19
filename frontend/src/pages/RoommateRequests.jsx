@@ -15,16 +15,19 @@ const RoommateRequests = () => {
     const [error, setError] = useState("");
     const [sent, setSent] = useState([]);
     const [received, setReceived] = useState([]);
+    const [applications, setApplications] = useState([]);
     const [actingId, setActingId] = useState(null);
 
     const fetchAll = async (token) => {
         const headers = { Authorization: `Bearer ${token}` };
-        const [mineRes, incomingRes] = await Promise.all([
+        const [mineRes, incomingRes, applicationsRes] = await Promise.all([
             axios.get(`${API_URL}/roommates/requests/mine`, { headers }),
             axios.get(`${API_URL}/roommates/requests/incoming`, { headers }),
+            axios.get(`${API_URL}/interests/mine`, { headers }),
         ]);
         setSent(mineRes.data.requests);
         setReceived(incomingRes.data.requests);
+        setApplications(applicationsRes.data.interests);
     };
 
     useEffect(() => {
@@ -80,13 +83,19 @@ const RoommateRequests = () => {
         navigate(`/listings/corper/${req.requested_id}`);
     };
 
-    const noRequestsAtAll = sent.length === 0 && received.length === 0;
+    // Same idea, for a listing you applied to.
+    const openAcceptedListing = (app) => {
+        if (app.status !== "accepted") return;
+        navigate(`/listings/agent/${app.listing_id}`);
+    };
+
+    const noRequestsAtAll = sent.length === 0 && received.length === 0 && applications.length === 0;
 
     return (
         <div className="themed">
             <Navbar active="requests" />
             <div className="section-inner listings-header">
-                <h1>Roommate requests</h1>
+                <h1>Requests</h1>
                 <p className="subtitle">Everyone you've reached out to, and everyone who's reached out to you.</p>
             </div>
 
@@ -98,9 +107,55 @@ const RoommateRequests = () => {
                     <div className="listings-empty">
                         <h3>No requests yet</h3>
                         <p>
-                            Browse fellow corpers with a spare room and send a request, or make sure "I already
-                            have an apartment and need a roommate" is checked on your profile so others can find you.
+                            Browse listings and apply, or reach out to a fellow corper with a spare room, or make
+                            sure "I already have an apartment and need a roommate" is checked on your profile so
+                            others can find you.
                         </p>
+                    </div>
+                )}
+
+                {!loading && !error && applications.length > 0 && (
+                    <div className="request-section">
+                        <h2 className="request-section-title">Rooms you've applied to</h2>
+                        <div className="request-list">
+                            {applications.map((app) => {
+                                const isAccepted = app.status === "accepted";
+                                const isNew = isAccepted && !app.seen_by_applicant;
+                                return (
+                                    <div
+                                        className={`request-row ${isAccepted ? "request-row-clickable" : ""}`}
+                                        key={app.id}
+                                        role={isAccepted ? "button" : undefined}
+                                        tabIndex={isAccepted ? 0 : undefined}
+                                        onClick={() => openAcceptedListing(app)}
+                                        onKeyDown={(e) => {
+                                            if (isAccepted && (e.key === "Enter" || e.key === " ")) {
+                                                e.preventDefault();
+                                                openAcceptedListing(app);
+                                            }
+                                        }}
+                                    >
+                                        <div className="request-avatar">
+                                            {app.location?.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div className="request-info">
+                                            <div className="request-name">
+                                                {app.location}
+                                                {isNew && <span className="request-new-badge">New</span>}
+                                            </div>
+                                            <div className="request-meta">
+                                                {isAccepted
+                                                    ? "Accepted \u2014 tap to view the listing & contact details"
+                                                    : "You applied to this listing"}
+                                            </div>
+                                        </div>
+                                        <span className={`request-status ${app.status}`}>
+                                            {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
                 )}
 

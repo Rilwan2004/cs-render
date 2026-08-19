@@ -130,6 +130,8 @@
 .listing-card-image.tint-ember{background:var(--ember-tint); color:var(--ember-500);}
 .listing-card-image.tint-mist{background:var(--mist-tint); color:var(--slate-500);}
 .listing-card-image .badge-verified{position:absolute; top:12px; left:12px;}
+.listing-card-image .badge-stack{position:absolute; top:12px; left:12px; display:flex; flex-direction:column; gap:6px; align-items:flex-start;}
+.listing-card-image .badge-stack .badge-verified{position:static;}
 .listing-card-image .icon-btn{position:absolute; top:12px; right:12px; width:32px; height:32px;}
 .listing-card-image .icon-btn svg{width:16px; height:16px; opacity:1;}
 

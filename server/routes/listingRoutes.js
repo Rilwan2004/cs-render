@@ -12,7 +12,8 @@ router.get("/", verifyToken, requireCorpsMember, async (req, res) => {
     try {
         const db = await connectToDatabase();
         const [rows] = await db.query(
-            `SELECT l.id, l.location, l.price, l.slots_available, l.description, l.expires_at, l.created_at, l.images, u.username AS agent_name,
+            `SELECT l.id, l.location, l.price, l.slots_available, l.description, l.expires_at, l.created_at, l.images,
+                    u.username AS agent_name, u.role AS poster_role,
                     COALESCE(ac.accepted_count, 0) AS slots_taken
              FROM listings l
              JOIN user u ON l.agent_id = u.id
@@ -39,7 +40,17 @@ router.get("/mine", verifyToken, async (req, res) => {
     try {
         const db = await connectToDatabase();
         const [rows] = await db.query(
-            "SELECT * FROM listings WHERE agent_id = ? ORDER BY created_at DESC",
+            `SELECT l.*, u.role AS poster_role, COALESCE(ac.accepted_count, 0) AS slots_taken
+             FROM listings l
+             JOIN user u ON l.agent_id = u.id
+             LEFT JOIN (
+                 SELECT listing_id, COUNT(*) AS accepted_count
+                 FROM interests
+                 WHERE status = 'accepted'
+                 GROUP BY listing_id
+             ) ac ON ac.listing_id = l.id
+             WHERE l.agent_id = ?
+             ORDER BY l.created_at DESC`,
             [req.userId]
         );
         return res.status(200).json({ listings: rows });

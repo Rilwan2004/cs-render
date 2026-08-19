@@ -21,9 +21,12 @@ const ListingCard = ({ listing, index, linkTo }) => {
     return (
         <Link to={linkTo || `/listings/${listing.source}/${listing.id}`} className="listing-card">
             <div className={`listing-card-image ${tint.className}`}>
-                <span className="badge-verified">
-                    <CheckIcon /> Verified
-                </span>
+                <div className="badge-stack">
+                    <span className="badge-verified">
+                        <CheckIcon /> Verified
+                    </span>
+                    {listing.isFull && <span className="badge-filled">Filled</span>}
+                </div>
                 <span className="icon-btn">
                     <HeartIcon width="16" height="16" />
                 </span>
@@ -52,8 +55,8 @@ const ListingCard = ({ listing, index, linkTo }) => {
                     ))}
                 </div>
                 <div className="listing-card-footer">
-                    <span className={`poster-role-tag ${listing.source === "agent" ? "agent" : "corper"}`}>
-                        {listing.source === "agent" ? "Agent" : "Corper"}
+                    <span className={`poster-role-tag ${listing.posterRoleLabel === "Agent" ? "agent" : "corper"}`}>
+                        {listing.posterRoleLabel}
                     </span>
                     <span className="posted-dot"></span>
                     {listing.postedLabel}

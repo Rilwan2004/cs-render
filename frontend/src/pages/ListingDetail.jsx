@@ -67,7 +67,14 @@ const ListingDetail = () => {
                     const existing = interestsRes.data.interests.find((i) => String(i.listing_id) === id);
                     if (existing) {
                         setStatus(existing.status);
-                        setContact({ email: existing.agent_contact, phone: existing.agent_phone });
+                        setContact({ email: existing.agent_contact, phone: existing.agent_contact_phone });
+                        // This is the "applicant has now seen the accepted
+                        // application" moment — clear the New badge back on /requests.
+                        if (existing.status === "accepted" && !existing.seen_by_applicant) {
+                            axios
+                                .patch(`${API_URL}/interests/${existing.id}/seen`, {}, { headers })
+                                .catch((err) => console.error("Error marking interest seen:", err));
+                        }
                     }
                 } else {
                     const [roommatesRes, requestsRes] = await Promise.all([
@@ -206,11 +213,11 @@ const ListingDetail = () => {
                             </div>
                             <div>
                                 <div className="poster-name">{listing.posterName}</div>
-                                <span className={`poster-role-tag ${source === "agent" ? "agent" : "corper"}`}>
-                                    {source === "agent" ? "Agent" : "Fellow corper"}
+                                <span className={`poster-role-tag ${listing.posterRoleLabel === "Agent" ? "agent" : "corper"}`}>
+                                    {listing.posterRoleLabel === "Agent" ? "Agent" : "Fellow corper"}
                                 </span>
                                 <div className="poster-credibility">
-                                    {source === "agent" ? "Verified agent on Corpspace" : "Verified corper on Corpspace"}
+                                    {listing.posterRoleLabel === "Agent" ? "Verified agent on Corpspace" : "Verified corper on Corpspace"}
                                 </div>
                             </div>
                         </div>

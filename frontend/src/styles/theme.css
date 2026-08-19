@@ -351,6 +351,15 @@ html{scroll-behavior:smooth;}
   box-shadow:var(--shadow-rest);
 }
 .badge-verified svg{width:12px; height:12px;}
+.badge-filled{
+  display:inline-flex; align-items:center;
+  background:var(--ember-500);
+  color:#fff;
+  font-size:12px; font-weight:600;
+  padding:6px 10px;
+  border-radius:var(--r-full);
+  box-shadow:var(--shadow-rest);
+}
 .tag-pill{
   display:inline-flex; align-items:center;
   background:var(--slate-100);

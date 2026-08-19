@@ -42,13 +42,16 @@ router.post("/", verifyToken, requireCorpsMember, async (req, res) => {
 });
 
 // GET /interests/mine - corps member: see their own submitted interests + status.
-// Contact info (agent's email) only appears once status is 'accepted'.
+// Contact info (agent's email/phone) only appears once status is 'accepted'.
+// seen_by_applicant tracks whether they've opened the accepted listing yet,
+// so the UI can show a "New" badge until then.
 router.get("/mine", verifyToken, requireCorpsMember, async (req, res) => {
     try {
         const db = await connectToDatabase();
         const [rows] = await db.query(
-            `SELECT i.id, i.status, i.created_at, l.location, l.price,
-                    CASE WHEN i.status = 'accepted' THEN u.email ELSE NULL END AS agent_contact
+            `SELECT i.id, i.status, i.seen_by_applicant, i.created_at, i.listing_id, l.location, l.price,
+                    CASE WHEN i.status = 'accepted' THEN u.email ELSE NULL END AS agent_contact,
+                    CASE WHEN i.status = 'accepted' THEN u.phone ELSE NULL END AS agent_contact_phone
              FROM interests i
              JOIN listings l ON i.listing_id = l.id
              JOIN user u ON l.agent_id = u.id
@@ -59,6 +62,26 @@ router.get("/mine", verifyToken, requireCorpsMember, async (req, res) => {
         return res.status(200).json({ interests: rows });
     } catch (err) {
         console.error("Get my interests error:", err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+// PATCH /interests/:id/seen - mark an accepted application (that I sent) as
+// seen, once I've opened the listing and viewed the unblurred contact
+// details. Only the original applicant can mark it seen.
+router.patch("/:id/seen", verifyToken, requireCorpsMember, async (req, res) => {
+    try {
+        const db = await connectToDatabase();
+        const [result] = await db.query(
+            "UPDATE interests SET seen_by_applicant = 1 WHERE id = ? AND corps_member_id = ? AND status = 'accepted'",
+            [req.params.id, req.userId]
+        );
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Interest not found" });
+        }
+        return res.status(200).json({ message: "Marked as seen" });
+    } catch (err) {
+        console.error("Mark interest seen error:", err);
         return res.status(500).json({ message: "Internal server error" });
     }
 });
